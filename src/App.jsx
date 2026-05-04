@@ -10,15 +10,15 @@ function Square({onSquareClick}) {
 
 export default function Board() {
   const [xIsNext,setXIsNext] = useState(true);
-  const [squares,setSquares] = useState(Array.from({ length:25 }, ()=>[]));
+  const [squares,setSquares] = useState(Array.from({ length:5 }, ()=>Array.from({ length:5}, ()=>[])));
 
-  function handleClick(i) {
+  function handleClick(i,j) {
     const nextSquares = squares.map((list) => {return [...list];});
 
     if (xIsNext) {
-      nextSquares[i].push("X");
+      nextSquares[i][j].push("X");
     } else {
-      nextSquares[i].push("O");
+      nextSquares[i][j].push("O");
     }
     setSquares(nextSquares);
     setXIsNext(!xIsNext);
@@ -28,39 +28,39 @@ export default function Board() {
     <>
       <div className = "board">
         <div className = "board-row">
-          <Square onSquareClick={() => handleClick(0)}/>
-          <Square onSquareClick={() => handleClick(1)}/>
-          <Square onSquareClick={() => handleClick(2)}/>
-          <Square onSquareClick={() => handleClick(3)}/>
-          <Square onSquareClick={() => handleClick(4)}/>
+          <Square onSquareClick={() => handleClick(0,0)}/>
+          <Square onSquareClick={() => handleClick(0,1)}/>
+          <Square onSquareClick={() => handleClick(0,2)}/>
+          <Square onSquareClick={() => handleClick(0,3)}/>
+          <Square onSquareClick={() => handleClick(0,4)}/>
         </div>
         <div className = "board-row">
-          <Square onSquareClick={() => handleClick(5)}/>
-          <Square onSquareClick={() => handleClick(6)}/>
-          <Square onSquareClick={() => handleClick(7)}/>
-          <Square onSquareClick={() => handleClick(8)}/>
-          <Square onSquareClick={() => handleClick(9)}/>
+          <Square onSquareClick={() => handleClick(1,0)}/>
+          <Square onSquareClick={() => handleClick(1,1)}/>
+          <Square onSquareClick={() => handleClick(1,2)}/>
+          <Square onSquareClick={() => handleClick(1,3)}/>
+          <Square onSquareClick={() => handleClick(1,4)}/>
         </div>
         <div className = "board-row">
-          <Square onSquareClick={() => handleClick(10)}/>
-          <Square onSquareClick={() => handleClick(11)}/>
-          <Square onSquareClick={() => handleClick(12)}/>
-          <Square onSquareClick={() => handleClick(13)}/>
-          <Square onSquareClick={() => handleClick(14)}/>
+          <Square onSquareClick={() => handleClick(2,0)}/>
+          <Square onSquareClick={() => handleClick(2,1)}/>
+          <Square onSquareClick={() => handleClick(2,2)}/>
+          <Square onSquareClick={() => handleClick(2,3)}/>
+          <Square onSquareClick={() => handleClick(2,4)}/>
         </div>
         <div className = "board-row">
-          <Square onSquareClick={() => handleClick(15)}/>
-          <Square onSquareClick={() => handleClick(16)}/>
-          <Square onSquareClick={() => handleClick(17)}/>
-          <Square onSquareClick={() => handleClick(18)}/>
-          <Square onSquareClick={() => handleClick(19)}/>
+          <Square onSquareClick={() => handleClick(3,1)}/>
+          <Square onSquareClick={() => handleClick(3,2)}/>
+          <Square onSquareClick={() => handleClick(3,3)}/>
+          <Square onSquareClick={() => handleClick(3,3)}/>
+          <Square onSquareClick={() => handleClick(3,4)}/>
         </div>
         <div className = "board-row">
-          <Square onSquareClick={() => handleClick(20)}/>
-          <Square onSquareClick={() => handleClick(21)}/>
-          <Square onSquareClick={() => handleClick(22)}/>
-          <Square onSquareClick={() => handleClick(23)}/>
-          <Square onSquareClick={() => handleClick(24)}/>
+          <Square onSquareClick={() => handleClick(4,0)}/>
+          <Square onSquareClick={() => handleClick(4,1)}/>
+          <Square onSquareClick={() => handleClick(4,2)}/>
+          <Square onSquareClick={() => handleClick(4,3)}/>
+          <Square onSquareClick={() => handleClick(4,4)}/>
         </div>
       </div>
     </>
