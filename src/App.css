@@ -182,3 +182,33 @@
     border-right-color: var(--border);
   }
 }
+
+.square {
+  width: 50px;
+  height: 50px;
+  background-color: lightskyblue;
+  background-image: linear-gradient(to bottom,lightskyblue,#006aff);
+  border: 2px solid black;
+  border-radius: 10px;
+  box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.2); 
+}
+
+.square:hover {
+  transform: scale(1.1);
+}
+
+.square:active {
+  transform: scale(0.9);
+}
+
+.board-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
