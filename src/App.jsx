@@ -4,6 +4,10 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './App.css';
 
+import React, { useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Grid, OrbitControls } from "@react-three/drei";
+
 function Square({ value, onSquareClick }) {
   return (
     <button className="square" onClick={onSquareClick}>
@@ -49,6 +53,23 @@ export default function Board() {
   return (
     <>
       <div className="status">{status}</div>
+
+
+      <div className="canvasContainer">
+        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
+          <axesHelper args={[5]} />
+          <ambientLight intensity={1} />
+          <directionalLight color="white" position={[0, 5, 0]} />
+      
+          <BaseBox />
+          <Cylinders />
+          <ReflectSquares squares={squares} />
+        
+          <OrbitControls />
+        </Canvas>
+      </div>
+
+
       <div className="board">
         <div className="board-row">
           {/*最上段はデバッグ用にボタンを押すとステータスが表示されるようにしてます。不要になったら削除して大丈夫です。*/}
@@ -242,3 +263,77 @@ function calculateWinner(squares) {
   }
   return null;
 }
+
+
+// ボードを定義
+const BaseBox = () => {
+  const meshRef = useRef(null);
+  return (
+    <group position={[0,-2.5,0]}>
+      <mesh ref={meshRef}>
+        <boxGeometry args={[5, 1, 5]} />
+        <meshStandardMaterial color="burlywood" />
+      </mesh>
+      <gridHelper
+        args={[4,4,"black","black"]}
+        position={[0,0.501,0]}
+      />
+    </group>
+  );
+};
+
+// 柱群を定義
+const Cylinders = () => {
+  const positions = [];
+  for (let x = -2; x <= 2; x++) {
+    for (let z = -2; z <= 2; z++) {
+      positions.push([x, 0, z]);
+    }
+  }
+  return (
+    <group>
+      {positions.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
+          <meshStandardMaterial color="burlywood" />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// 石を定義
+const Stone = ({ stonePosition, stoneType }) => {
+  const color = stoneType === 'X' ? 'black' : 'white';
+  return (
+    <mesh position={stonePosition}>
+      <sphereGeometry args={[0.5, 32, 32]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+};
+
+// squaresを反映
+const ReflectSquares = ({ squares }) => {
+  function PutStones(i, j) {
+    return squares[i][j].map((stoneType, k) => {
+      const stonePosition = [j - 2, k - 1.5, i - 2];
+      return (
+        <Stone
+          key={`${i}-${j}-${k}`}
+          stonePosition={stonePosition}
+          stoneType={stoneType}
+        />
+      );
+    });
+  }
+
+  return (
+    <group>
+      {Array.from({ length: 5 }, (_, i) =>
+        Array.from({ length: 5 }, (_, j) => PutStones(i, j))
+      )}
+    </group>
+  );
+};
+
