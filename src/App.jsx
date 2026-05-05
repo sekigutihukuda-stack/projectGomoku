@@ -51,6 +51,8 @@ export default function Board() {
       <div className="status">{status}</div>
       <div className="board">
         <div className="board-row">
+          {' '}
+          //最上段はデバッグ用にボタンを押すとステータスが表示されるようにしてます。不要になったら削除して大丈夫です。
           <Square
             value={squares[0][0].join('')}
             onSquareClick={() => handleClick(0, 0)}
