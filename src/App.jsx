@@ -4,8 +4,12 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './App.css';
 
-function Square({ onSquareClick }) {
-  return <button className="square" onClick={onSquareClick}></button>;
+function Square({ value, onSquareClick }) {
+  return (
+    <button className="square" onClick={onSquareClick}>
+      {value}
+    </button>
+  );
 }
 
 export default function Board() {
@@ -47,11 +51,26 @@ export default function Board() {
       <div className="status">{status}</div>
       <div className="board">
         <div className="board-row">
-          <Square onSquareClick={() => handleClick(0, 0)} />
-          <Square onSquareClick={() => handleClick(0, 1)} />
-          <Square onSquareClick={() => handleClick(0, 2)} />
-          <Square onSquareClick={() => handleClick(0, 3)} />
-          <Square onSquareClick={() => handleClick(0, 4)} />
+          <Square
+            value={squares[0][0].join('')}
+            onSquareClick={() => handleClick(0, 0)}
+          />
+          <Square
+            value={squares[0][1].join('')}
+            onSquareClick={() => handleClick(0, 1)}
+          />
+          <Square
+            value={squares[0][2].join('')}
+            onSquareClick={() => handleClick(0, 2)}
+          />
+          <Square
+            value={squares[0][3].join('')}
+            onSquareClick={() => handleClick(0, 3)}
+          />
+          <Square
+            value={squares[0][4].join('')}
+            onSquareClick={() => handleClick(0, 4)}
+          />
         </div>
         <div className="board-row">
           <Square onSquareClick={() => handleClick(1, 0)} />
