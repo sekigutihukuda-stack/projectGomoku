@@ -242,6 +242,7 @@
   min-width: 0; /* Flex子要素が中身に押されて広がるのを防ぐ魔法のプロパティ */
   display: flex;
   flex-direction: column;
+  background-color: white;
 }
 
 /* ✅ 3Dキャンバス：親のサイズに従う */

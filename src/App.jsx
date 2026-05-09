@@ -451,11 +451,26 @@ const Cylinders = () => {
 
 // 石を定義
 const Stone = ({ stonePosition, stoneType }) => {
-  const color = stoneType === 'X' ? 'black' : 'white';
+  let color;
+
+  if (stoneType === 90) {
+    color = '#4d4d4d';
+  } else if (stoneType === 70) {
+    color = '#808080';
+  } else if (stoneType === 30) {
+    color = '#b3b3b3';
+  } else if (stoneType === 10) {
+    color = '#e6e6e6';
+  }
+
   return (
     <mesh position={stonePosition}>
       <sphereGeometry args={[0.5, 32, 32]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.3} // 少しツヤを出すと質感が良くなります
+        metalness={0.2}
+      />
     </mesh>
   );
 };
