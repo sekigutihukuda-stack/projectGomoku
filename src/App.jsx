@@ -4,20 +4,16 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './App.css';
 
-import React, { useRef } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Grid, OrbitControls } from "@react-three/drei";
+import React, { useRef } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Grid, OrbitControls } from '@react-three/drei';
 
-function Square({ value, onSquareClick }) {
-  return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
-  );
+function Square({ onSquareClick }) {
+  return <button className="square" onClick={onSquareClick}></button>;
 }
 
 export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
+  const [xIsNext, setXIsNext] = useState(90);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   );
@@ -33,66 +29,65 @@ export default function Board() {
       return;
     }
 
-    if (xIsNext) {
-      nextSquares[i][j].push('X');
-    } else {
-      nextSquares[i][j].push('O');
+    if (xIsNext === 90) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(10);
+    } else if (xIsNext === 10) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(70);
+    } else if (xIsNext === 70) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(30);
+    } else if (xIsNext === 30) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(90);
     }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
   }
 
   const winner = calculateWinner(squares);
+  const [nextPlayer, setNextplayer] = useState();
+  if (xIsNext === 90 || xIsNext === 70) {
+    setNextplayer('X');
+  } else {
+    setNextplayer('O');
+  }
+
   let status;
   if (winner) {
     status = 'Winner' + winner;
   } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+    status = 'Next player: ' + nextPlayer;
   }
 
   return (
     <>
       <div className="status">{status}</div>
 
-
       <div className="canvasContainer">
         <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
           <axesHelper args={[5]} />
           <ambientLight intensity={1} />
           <directionalLight color="white" position={[0, 5, 0]} />
-      
+
           <BaseBox />
           <Cylinders />
           <ReflectSquares squares={squares} />
-        
+
           <OrbitControls />
         </Canvas>
       </div>
 
-
       <div className="board">
         <div className="board-row">
-          {/*最上段はデバッグ用にボタンを押すとステータスが表示されるようにしてます。不要になったら削除して大丈夫です。*/}
-          <Square
-            value={squares[0][0].join('')}
-            onSquareClick={() => handleClick(0, 0)}
-          />
-          <Square
-            value={squares[0][1].join('')}
-            onSquareClick={() => handleClick(0, 1)}
-          />
-          <Square
-            value={squares[0][2].join('')}
-            onSquareClick={() => handleClick(0, 2)}
-          />
-          <Square
-            value={squares[0][3].join('')}
-            onSquareClick={() => handleClick(0, 3)}
-          />
-          <Square
-            value={squares[0][4].join('')}
-            onSquareClick={() => handleClick(0, 4)}
-          />
+          <Square onSquareClick={() => handleClick(0, 0)} />
+          <Square onSquareClick={() => handleClick(0, 1)} />
+          <Square onSquareClick={() => handleClick(0, 2)} />
+          <Square onSquareClick={() => handleClick(0, 3)} />
+          <Square onSquareClick={() => handleClick(0, 4)} />
         </div>
         <div className="board-row">
           <Square onSquareClick={() => handleClick(1, 0)} />
@@ -264,20 +259,16 @@ function calculateWinner(squares) {
   return null;
 }
 
-
 // ボードを定義
 const BaseBox = () => {
   const meshRef = useRef(null);
   return (
-    <group position={[0,-2.5,0]}>
+    <group position={[0, -2.5, 0]}>
       <mesh ref={meshRef}>
         <boxGeometry args={[5, 1, 5]} />
         <meshStandardMaterial color="burlywood" />
       </mesh>
-      <gridHelper
-        args={[4,4,"black","black"]}
-        position={[0,0.501,0]}
-      />
+      <gridHelper args={[4, 4, 'black', 'black']} position={[0, 0.501, 0]} />
     </group>
   );
 };
@@ -331,9 +322,8 @@ const ReflectSquares = ({ squares }) => {
   return (
     <group>
       {Array.from({ length: 5 }, (_, i) =>
-        Array.from({ length: 5 }, (_, j) => PutStones(i, j))
+        Array.from({ length: 5 }, (_, j) => PutStones(i, j)),
       )}
     </group>
   );
 };
-
