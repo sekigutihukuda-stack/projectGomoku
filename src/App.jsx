@@ -5,219 +5,6 @@ import React, { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 
-function Square({ value, onSquareClick }) {
-  return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
-  );
-}
-
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(
-    Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
-  );
-
-  const [stage, setStage] = useState('start'); // 'start', 'game', 'result', 'ruleExplanation'のいずれかを取る
-
-  function resetGame() {
-    setSquares(Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])));
-    setXIsNext(true);
-    setStage('start');
-  }
-
-  useEffect(() => {
-    if (stage === 'game') {
-      const winner = calculateWinner(squares);
-      if (winner) {
-        setStage('result');
-      }
-    }
-  }, [squares, stage]);
-
-  function handleClick(i, j) {
-    const nextSquares = squares.map((row) => {
-      return row.map((cell) => {
-        return [...cell];
-      });
-    });
-
-    if (squares[i][j][4] || calculateWinner(squares)) {
-      return;
-    }
-
-    if (xIsNext) {
-      nextSquares[i][j].push('X');
-    } else {
-      nextSquares[i][j].push('O');
-    }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
-  }
-
-  const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = 'Winner: ' + winner;
-  } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
-  }
-
-  //ステージ遷移
-  if (stage === 'start') {
-    return (
-      <>
-      <div className="startScreen">
-        <h1>3D量子五目並べ</h1>
-        <div className = "buttonsInStartScreen">
-          <button className = "startButton" onClick={() => setStage('game')}>スタート</button>
-          <button className="ruleExplanationButton" onClick={() => setStage('ruleExplanation1')}>ルール説明</button>
-        </div>
-      </div>
-      </>
-    );
-  }
-
-  if (stage === 'ruleExplanation1') {
-    return (
-      <>
-      <div className="ruleExplanationScreen">
-        <h2>ルール説明</h2>
-        <p>3D量子五目並べは、5x5x5の立方体の中で行う五目並べです。</p>
-        <p>プレイヤーは交互に石を積んでいき、縦、横、高さ、斜めのいずれかで自分の石を5つ並べたプレイヤーが勝利となります。</p>
-        <div className = "buttonsInRuleExplanationScreen">
-          <button className="backButton" onClick={() => setStage('start')}>戻る</button>
-          <button className="nextButton" onClick={() => setStage('ruleExplanation2')}>次へ</button>
-        </div>
-      </div>
-      </>
-    );
-  }
-
-   if (stage === 'ruleExplanation2') {
-    return (
-      <>
-      <div className="ruleExplanationScreen">
-        <h2>ルール説明</h2>
-        <p>ただし、盤面に置く石の色はまだ確定していません！</p>
-        <p>プレーヤーの置く石にはそれぞれ90,70,30,10の数字が書かれています。</p>
-        <p>これらの数字はその石が黒石になる確率を表しています。(10→90%の確率で白石になる、30→70%の確率で白石になる)</p>
-        <p>"観測"することで確率に従って石の色が決定します。</p>
-        <div className = "buttonsInRuleExplanationScreen">
-          <button className="backButton" onClick={() => setStage('ruleExplanation1')}>戻る</button>
-          <button className="nextButton" onClick={() => setStage('ruleExplanation3')}>次へ</button>
-        </div>
-      </div>
-      </>
-    );
-  }
-
-     if (stage === 'ruleExplanation3') {
-    return (
-      <>
-      <div className="ruleExplanationScreen">
-        <h2>ルール説明</h2>
-        <p>先手から90→10→30→70→90→...の順に石を置いていきます。</p>
-        <p>確率の高い石をどこに置くか、どのタイミングで観測するかが勝敗の鍵となります！</p>
-        <p>頭を使いつつ、運を味方につけて勝利を目指しましょう！</p>
-        <div className = "buttonsInRuleExplanationScreen">
-          <button className="backButton" onClick={() => setStage('ruleExplanation2')}>戻る</button>
-          <button className="nextButton" onClick={() => setStage('start')}>メニューへ</button>
-        </div>
-      </div>
-      </>
-    );
-  }
-
-  if (stage === 'game') {
-    return (
-      <>
-      <div className="status">{status}</div>
-
-      <div className="canvasContainer">
-        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
-          <axesHelper args={[5]} />
-          <ambientLight intensity={1} />
-          <directionalLight color="white" position={[0, 5, 0]} />
-      
-          <BaseBox />
-          <Cylinders />
-          <ReflectSquares squares={squares} />
-        
-          <OrbitControls />
-        </Canvas>
-      </div>
-
-      <div className="board">
-        <div className="board-row">
-          {/*最上段はデバッグ用にボタンを押すとステータスが表示されるようにしてます。不要になったら削除して大丈夫です。*/}
-          <Square
-            value={squares[0][0].join('')}
-            onSquareClick={() => handleClick(0, 0)}
-          />
-          <Square
-            value={squares[0][1].join('')}
-            onSquareClick={() => handleClick(0, 1)}
-          />
-          <Square
-            value={squares[0][2].join('')}
-            onSquareClick={() => handleClick(0, 2)}
-          />
-          <Square
-            value={squares[0][3].join('')}
-            onSquareClick={() => handleClick(0, 3)}
-          />
-          <Square
-            value={squares[0][4].join('')}
-            onSquareClick={() => handleClick(0, 4)}
-          />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(1, 0)} />
-          <Square onSquareClick={() => handleClick(1, 1)} />
-          <Square onSquareClick={() => handleClick(1, 2)} />
-          <Square onSquareClick={() => handleClick(1, 3)} />
-          <Square onSquareClick={() => handleClick(1, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(2, 0)} />
-          <Square onSquareClick={() => handleClick(2, 1)} />
-          <Square onSquareClick={() => handleClick(2, 2)} />
-          <Square onSquareClick={() => handleClick(2, 3)} />
-          <Square onSquareClick={() => handleClick(2, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(3, 0)} />
-          <Square onSquareClick={() => handleClick(3, 1)} />
-          <Square onSquareClick={() => handleClick(3, 2)} />
-          <Square onSquareClick={() => handleClick(3, 3)} />
-          <Square onSquareClick={() => handleClick(3, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(4, 0)} />
-          <Square onSquareClick={() => handleClick(4, 1)} />
-          <Square onSquareClick={() => handleClick(4, 2)} />
-          <Square onSquareClick={() => handleClick(4, 3)} />
-          <Square onSquareClick={() => handleClick(4, 4)} />
-        </div>
-      </div>
-    </>
-    );
-  }
-
-  if (stage === 'result') {
-    return (
-      <>
-        <div className="resultScreen">
-          <h1>{status}</h1>
-          <button className="menuButton" onClick={() => resetGame()}>メニューへ</button>
-        </div>
-      </>
-    );
-  }
-}
-
 //勝利パターンの数え上げ
 const index = [];
 for (let z = 0; z < 5; z++) {
@@ -355,6 +142,13 @@ export default function Board() {
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
+  const [stage, setStage] = useState('start'); // 'start', 'game', 'result', 'ruleExplanation'のいずれかを取る
+
+  function resetGame() {
+    setSquares(Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])));
+    setXIsNext(true);
+    setStage('start');
+  }
 
   function handleClick(i, j) {
     const nextSquares = squares.map((row) => {
@@ -389,7 +183,7 @@ export default function Board() {
   const [winner, setWinner] = useState();
   function handleObserve(probability) {
     const randomNum = Math.random();
-    if (probability / 100 > randomNum) {
+    if (probability / 100 > 0) {
       return 'X';
     } else {
       return 'O';
@@ -413,7 +207,6 @@ export default function Board() {
           }
         }
       } //確率が入った三重配列を実際の値に変換（観測する）
-
       for (let i = 0; i < index.length; i++) {
         const [c1, c2, c3, c4, c5] = index[i]; //一直線に並ぶ時の座標を取得する
         const [v1, v2, v3, v4, v5] = [
@@ -427,6 +220,7 @@ export default function Board() {
 
         if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
           setWinner(v1);
+          setStage("result");
         }
       }
 
@@ -454,6 +248,82 @@ export default function Board() {
     ' | PlayerO:' +
     oObserveLimit;
 
+  //ステージ遷移
+  if (stage === 'start') {
+    return (
+      <>
+        <div className="startScreen">
+          <h1>3D量子五目並べ</h1>
+          <div className="buttonsInStartScreen">
+            <button className="startButton" onClick={() => setStage('game')}>スタート</button>
+            <button className="ruleExplanationButton" onClick={() => setStage('ruleExplanation1')}>ルール説明</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (stage === 'ruleExplanation1') {
+    return (
+      <>
+        <div className="ruleExplanationScreen">
+          <h2>ルール説明</h2>
+          <p>3D量子五目並べは、5x5x5の立方体の中で行う五目並べです。</p>
+          <p>プレイヤーは交互に石を積んでいき、縦、横、高さ、斜めのいずれかで自分の石を5つ並べたプレイヤーが勝利となります。</p>
+          <div className="buttonsInRuleExplanationScreen">
+            <button className="backButton" onClick={() => setStage('start')}>戻る</button>
+            <button className="nextButton" onClick={() => setStage('ruleExplanation2')}>次へ</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (stage === 'ruleExplanation2') {
+    return (
+      <>
+        <div className="ruleExplanationScreen">
+          <h2>ルール説明</h2>
+          <p>ただし、盤面に置く石の色はまだ確定していません！</p>
+          <p>プレーヤーの置く石にはそれぞれ90,70,30,10の数字が書かれています。</p>
+          <p>これらの数字はその石が黒石になる確率を表しています。(10→90%の確率で白石になる、30→70%の確率で白石になる)</p>
+          <p>"観測"することで確率に従って石の色が決定します。</p>
+          <div className="buttonsInRuleExplanationScreen">
+            <button className="backButton" onClick={() => setStage('ruleExplanation1')}>戻る</button>
+            <button className="nextButton" onClick={() => setStage('ruleExplanation3')}>次へ</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (stage === 'ruleExplanation3') {
+    return (
+      <>
+        <div className="ruleExplanationScreen">
+          <h2>ルール説明</h2>
+          <p>先手から90→10→30→70→90→...の順に石を置いていきます。</p>
+          <p>確率の高い石をどこに置くか、どのタイミングで観測するかが勝敗の鍵となります！</p>
+          <p>頭を使いつつ、運を味方につけて勝利を目指しましょう！</p>
+          <div className="buttonsInRuleExplanationScreen">
+            <button className="backButton" onClick={() => setStage('ruleExplanation2')}>戻る</button>
+            <button className="nextButton" onClick={() => setStage('start')}>メニューへ</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (stage === 'result') {
+    return (
+      <>
+        <div className="resultScreen">
+          <h1>{status}</h1>
+          <button className="menuButton" onClick={() => resetGame()}>メニューへ</button>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <div className="status">{status}</div>
