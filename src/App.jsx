@@ -236,7 +236,7 @@ export default function Board() {
     status = 'Next player: ' + nextPlayer;
   }
   const observationLeft =
-    'Observation left/Player X: ' +
+    'Observation left  Player X: ' +
     xObserveLimit +
     'Player O: ' +
     oObserveLimit;
