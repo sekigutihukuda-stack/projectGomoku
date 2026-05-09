@@ -132,6 +132,10 @@ function Square({ onSquareClick }) {
   return <button className="square" onClick={onSquareClick}></button>;
 }
 
+function Observer({ onObserverClick }) {
+  //観測ボタンの定義
+  return <button className="observer" onClick={onObserverClick}></button>;
+}
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
   const [squares, setSquares] = useState(
@@ -165,13 +169,13 @@ export default function Board() {
       nextSquares[i][j].push(xProbability);
       setSquares(nextSquares);
       setXProbability(90);
-    }
-  } //xIsNextを順繰りになるように定義
+    } //xIsNextを順繰りになるように定義
+  }
 
   const [winner, setWinner] = useState();
   function handleObserve(probability) {
     const randomNum = Math.random();
-    if (probability / 10 > randomNum) {
+    if (probability / 100 > randomNum) {
       return 'X';
     } else {
       return 'O';
@@ -183,22 +187,22 @@ export default function Board() {
         return [...cell];
       });
     }); //三重配列のコピー
+    for (let i = 0; i < judgeSquares.length; i++) {
+      for (let j = 0; j < judgeSquares[i].length; j++) {
+        for (let k = 0; k < judgeSquares[i][j].length; k++) {
+          judgeSquares[i][j][k] = handleObserve(judgeSquares[i][j][k]);
+        }
+      }
+    } //確率が入った三重配列を実際の値に変換（観測する）
 
     for (let i = 0; i < index.length; i++) {
       const [c1, c2, c3, c4, c5] = index[i];
-      const [p1, p2, p3, p4, p5] = [
-        squares[c1[0]][c1[1]][c1[2]],
-        squares[c2[0]][c2[1]][c2[2]],
-        squares[c3[0]][c3[1]][c3[2]],
-        squares[c4[0]][c4[1]][c4[2]],
-        squares[c5[0]][c5[1]][c5[2]],
-      ];
       const [v1, v2, v3, v4, v5] = [
-        handleObserve(p1),
-        handleObserve(p2),
-        handleObserve(p3),
-        handleObserve(p4),
-        handleObserve(p5),
+        judgeSquares[c1[0]][c1[1]][c1[2]],
+        judgeSquares[c2[0]][c2[1]][c2[2]],
+        judgeSquares[c3[0]][c3[1]][c3[2]],
+        judgeSquares[c4[0]][c4[1]][c4[2]],
+        judgeSquares[c5[0]][c5[1]][c5[2]],
       ];
 
       if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
@@ -207,18 +211,13 @@ export default function Board() {
     }
   }
 
-  const [nextPlayer, setNextplayer] = useState();
-  if (xProbability === 90 || xProbability === 70) {
-    setNextplayer('X');
-  } else {
-    setNextplayer('O');
-  }
-
-  let [status, setStatus] = useState();
+  let status;
   if (winner) {
-    setStatus('Winner' + winner);
+    status = 'Winner' + winner;
   } else {
-    setStatus('Next player: ' + nextPlayer);
+    status =
+      'Next player: ' +
+      (xProbability === 90 || xProbability === 70 ? 'X' : 'O');
   }
 
   return (
@@ -275,6 +274,7 @@ export default function Board() {
           <Square onSquareClick={() => handleClick(4, 4)} />
         </div>
       </div>
+      <Observer onObserverClick={() => calculateWinner(squares)} />
     </>
   );
 }
