@@ -438,7 +438,11 @@ const Cylinders = () => {
         <mesh key={i} position={pos}>
           <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
           {/* 判定関数の結果をcolorに渡す */}
-          <meshStandardMaterial color={getCylinderColor(pos[0], pos[2])} />
+          <meshStandardMaterial
+            color={getCylinderColor(pos[0], pos[2])}
+            transparent={true}
+            opacity={0.5}
+          />
         </mesh>
       ))}
     </group>
