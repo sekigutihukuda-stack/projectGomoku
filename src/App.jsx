@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
-import React, { useRef, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Grid, OrbitControls } from "@react-three/drei";
+import React, { useRef, useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { Grid, OrbitControls } from '@react-three/drei';
 
 //勝利パターンの数え上げ
 const index = [];
@@ -146,14 +146,16 @@ function Observer({ onObserverClick, value }) {
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
   const [hasPlacedStone, setHasPlacedStone] = useState(false);
+  const [tempSquares, setTempSquares] = useState(null);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
   const [stage, setStage] = useState('start'); // 'start', 'game', 'result', 'ruleExplanation'のいずれかを取る
 
   function resetGame() {
-    setSquares(Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])));
-    setXIsNext(true);
+    setSquares(
+      Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
+    );
     setStage('start');
   }
 
@@ -201,14 +203,15 @@ export default function Board() {
   function calculateWinner(squares) {
     if (
       //観測回数が残っている時にしか観測できないようにする
-      (nextPlayer === 'X' && xObserveLimit > 0) ||
-      (nextPlayer === 'O' && oObserveLimit > 0)
+      (nextPlayer === 'O' && xObserveLimit > 0) ||
+      (nextPlayer === 'X' && oObserveLimit > 0)
     ) {
       const judgeSquares = squares.map((row) => {
         return row.map((cell) => {
           return [...cell];
         });
       }); //三重配列のコピー
+
       for (let i = 0; i < judgeSquares.length; i++) {
         for (let j = 0; j < judgeSquares[i].length; j++) {
           for (let k = 0; k < judgeSquares[i][j].length; k++) {
@@ -216,6 +219,9 @@ export default function Board() {
           }
         }
       } //確率が入った三重配列を実際の値に変換（観測する）
+
+      setTempSquares(squares); //tempSquaresにSquaresを退避させる
+
       for (let i = 0; i < index.length; i++) {
         const [c1, c2, c3, c4, c5] = index[i]; //一直線に並ぶ時の座標を取得する
         const [v1, v2, v3, v4, v5] = [
@@ -228,10 +234,11 @@ export default function Board() {
         ];
 
         if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
-          setWinner(v1);
-          setStage("result");
+          setWinner(v1 === 'X' ? 'Black' : 'White');
+          setStage('result');
         }
       }
+      setSquares(judgeSquares); //3d画面にjudgeSquaresの内容を表示させる
 
       if (nextPlayer === 'X') {
         setOObserveLimit(oObserveLimit - 1);
@@ -248,7 +255,7 @@ export default function Board() {
 
   let status;
   if (winner) {
-    status = 'Winner' + winner;
+    status = 'Winner: ' + winner;
   } else {
     status = 'Next player: ' + (nextPlayer === 'X' ? 'Black' : 'White');
   }
@@ -265,8 +272,15 @@ export default function Board() {
         <div className="startScreen">
           <h1>3D量子五目並べ</h1>
           <div className="buttonsInStartScreen">
-            <button className="startButton" onClick={() => setStage('game')}>スタート</button>
-            <button className="ruleExplanationButton" onClick={() => setStage('ruleExplanation1')}>ルール説明</button>
+            <button className="startButton" onClick={() => setStage('game')}>
+              スタート
+            </button>
+            <button
+              className="ruleExplanationButton"
+              onClick={() => setStage('ruleExplanation1')}
+            >
+              ルール説明
+            </button>
           </div>
         </div>
       </>
@@ -279,10 +293,19 @@ export default function Board() {
         <div className="ruleExplanationScreen">
           <h2>ルール説明</h2>
           <p>3D量子五目並べは、5x5x5の立方体の中で行う五目並べです。</p>
-          <p>プレイヤーは交互に石を積んでいき、縦、横、高さ、斜めのいずれかで自分の石を5つ並べたプレイヤーが勝利となります。</p>
+          <p>
+            プレイヤーは交互に石を積んでいき、縦、横、高さ、斜めのいずれかで自分の石を5つ並べたプレイヤーが勝利となります。
+          </p>
           <div className="buttonsInRuleExplanationScreen">
-            <button className="backButton" onClick={() => setStage('start')}>戻る</button>
-            <button className="nextButton" onClick={() => setStage('ruleExplanation2')}>次へ</button>
+            <button className="backButton" onClick={() => setStage('start')}>
+              戻る
+            </button>
+            <button
+              className="nextButton"
+              onClick={() => setStage('ruleExplanation2')}
+            >
+              次へ
+            </button>
           </div>
         </div>
       </>
@@ -295,12 +318,26 @@ export default function Board() {
         <div className="ruleExplanationScreen">
           <h2>ルール説明</h2>
           <p>ただし、盤面に置く石の色はまだ確定していません！</p>
-          <p>プレーヤーの置く石にはそれぞれ90,70,30,10の数字が書かれています。</p>
-          <p>これらの数字はその石が黒石になる確率を表しています。(10→90%の確率で白石になる、30→70%の確率で白石になる)</p>
+          <p>
+            プレーヤーの置く石にはそれぞれ90,70,30,10の数字が書かれています。
+          </p>
+          <p>
+            これらの数字はその石が黒石になる確率を表しています。(10→90%の確率で白石になる、30→70%の確率で白石になる)
+          </p>
           <p>"観測"することで確率に従って石の色が決定します。</p>
           <div className="buttonsInRuleExplanationScreen">
-            <button className="backButton" onClick={() => setStage('ruleExplanation1')}>戻る</button>
-            <button className="nextButton" onClick={() => setStage('ruleExplanation3')}>次へ</button>
+            <button
+              className="backButton"
+              onClick={() => setStage('ruleExplanation1')}
+            >
+              戻る
+            </button>
+            <button
+              className="nextButton"
+              onClick={() => setStage('ruleExplanation3')}
+            >
+              次へ
+            </button>
           </div>
         </div>
       </>
@@ -313,11 +350,20 @@ export default function Board() {
         <div className="ruleExplanationScreen">
           <h2>ルール説明</h2>
           <p>先手から90→10→30→70→90→...の順に石を置いていきます。</p>
-          <p>確率の高い石をどこに置くか、どのタイミングで観測するかが勝敗の鍵となります！</p>
+          <p>
+            確率の高い石をどこに置くか、どのタイミングで観測するかが勝敗の鍵となります！
+          </p>
           <p>頭を使いつつ、運を味方につけて勝利を目指しましょう！</p>
           <div className="buttonsInRuleExplanationScreen">
-            <button className="backButton" onClick={() => setStage('ruleExplanation2')}>戻る</button>
-            <button className="nextButton" onClick={() => setStage('start')}>メニューへ</button>
+            <button
+              className="backButton"
+              onClick={() => setStage('ruleExplanation2')}
+            >
+              戻る
+            </button>
+            <button className="nextButton" onClick={() => setStage('start')}>
+              メニューへ
+            </button>
           </div>
         </div>
       </>
@@ -329,7 +375,9 @@ export default function Board() {
       <>
         <div className="resultScreen">
           <h1>{status}</h1>
-          <button className="menuButton" onClick={() => resetGame()}>メニューへ</button>
+          <button className="menuButton" onClick={() => resetGame()}>
+            メニューへ
+          </button>
         </div>
       </>
     );
@@ -466,18 +514,50 @@ export default function Board() {
             />
           </div>
         </div>
-        {hasPlacedStone && (
+        {tempSquares ? (
           <div className="observers">
-            <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
+            <div style={{ fontSize: 20, color: 'blue' }}>
+              観測結果を確認中...
+            </div>
             <Observer
-              value="Yes"
-              onObserverClick={() => calculateWinner(squares)}
-            />
-            <Observer
-              value="No"
-              onObserverClick={() => setHasPlacedStone(false)}
+              value="戻して次へ"
+              onObserverClick={() => {
+                // バックアップしておいた確率盤面に戻す
+                setSquares(tempSquares);
+                setTempSquares(null); // バックアップを空にする
+                setHasPlacedStone(false); // 次の石を置けるようにする
+
+                // 次のプレイヤー・確率へ進める
+                setXProbability((prev) => {
+                  if (prev === 90) return 10;
+                  if (prev === 10) return 70;
+                  if (prev === 70) return 30;
+                  return 90;
+                });
+              }}
             />
           </div>
+        ) : (
+          hasPlacedStone && (
+            <div className="observers">
+              <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
+
+              {/* 観測回数がある時だけ Yes ボタンを出す */}
+              {((nextPlayer === 'O' && xObserveLimit > 0) ||
+                (nextPlayer === 'X' && oObserveLimit > 0)) && (
+                <Observer
+                  value="Yes"
+                  onObserverClick={() => calculateWinner(squares)}
+                />
+              )}
+
+              {/* No（観測せず終了）は常に選べるようにする */}
+              <Observer
+                value="No"
+                onObserverClick={() => setHasPlacedStone(false)}
+              />
+            </div>
+          )
         )}
       </div>
     </div>
@@ -536,14 +616,18 @@ const Cylinders = () => {
 const Stone = ({ stonePosition, stoneType }) => {
   let color;
 
-  if (stoneType === 90) {
-    color = '#4d4d4d';
-  } else if (stoneType === 70) {
-    color = '#808080';
-  } else if (stoneType === 30) {
-    color = '#b3b3b3';
-  } else if (stoneType === 10) {
-    color = '#e6e6e6';
+  if (typeof stoneType === 'number') {
+    if (stoneType === 90) {
+      color = '#4d4d4d';
+    } else if (stoneType === 70) {
+      color = '#808080';
+    } else if (stoneType === 30) {
+      color = '#b3b3b3';
+    } else if (stoneType === 10) {
+      color = '#e6e6e6';
+    }
+  } else {
+    color = stoneType === 'X' ? 'black' : 'white';
   }
 
   return (
