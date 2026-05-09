@@ -133,7 +133,7 @@ function Square({ onSquareClick }) {
 }
 
 export default function Board() {
-  const [xIsNext, setXIsNext] = useState(90);
+  const [xProbability, setXProbability] = useState(90);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
@@ -149,29 +149,28 @@ export default function Board() {
       return;
     } //おくことのできる上限に達しているか勝者が決まっていたら何もできないようにする
 
-    if (xIsNext === 90) {
-      nextSquares[i][j].push(xIsNext);
+    if (xProbability === 90) {
+      nextSquares[i][j].push(xProbability);
       setSquares(nextSquares);
-      setXIsNext(10);
-    } else if (xIsNext === 10) {
-      nextSquares[i][j].push(xIsNext);
+      setXProbability(10);
+    } else if (xProbability === 10) {
+      nextSquares[i][j].push(xProbability);
       setSquares(nextSquares);
-      setXIsNext(70);
-    } else if (xIsNext === 70) {
-      nextSquares[i][j].push(xIsNext);
+      setXProbability(70);
+    } else if (xProbability === 70) {
+      nextSquares[i][j].push(xProbability);
       setSquares(nextSquares);
-      setXIsNext(30);
-    } else if (xIsNext === 30) {
-      nextSquares[i][j].push(xIsNext);
+      setXProbability(30);
+    } else if (xProbability === 30) {
+      nextSquares[i][j].push(xProbability);
       setSquares(nextSquares);
-      setXIsNext(90);
+      setXProbability(90);
     }
   } //xIsNextを順繰りになるように定義
 
   const [winner, setWinner] = useState();
   function handleObserve(probability) {
-    const [randomNum, setRandomNum] = useState(0);
-    setRandomNum(Math.random());
+    const randomNum = Math.random();
     if (probability / 10 > randomNum) {
       return 'X';
     } else {
@@ -179,6 +178,12 @@ export default function Board() {
     }
   }
   function calculateWinner(squares) {
+    const judgeSquares = squares.map((row) => {
+      return row.map((cell) => {
+        return [...cell];
+      });
+    }); //三重配列のコピー
+
     for (let i = 0; i < index.length; i++) {
       const [c1, c2, c3, c4, c5] = index[i];
       const [p1, p2, p3, p4, p5] = [
@@ -203,7 +208,7 @@ export default function Board() {
   }
 
   const [nextPlayer, setNextplayer] = useState();
-  if (xIsNext === 90 || xIsNext === 70) {
+  if (xProbability === 90 || xProbability === 70) {
     setNextplayer('X');
   } else {
     setNextplayer('O');
@@ -219,7 +224,6 @@ export default function Board() {
   return (
     <>
       <div className="status">{status}</div>
-
       <div className="canvasContainer">
         <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
           <axesHelper args={[5]} />
