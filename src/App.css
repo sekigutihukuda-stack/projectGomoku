@@ -187,10 +187,24 @@
   width: 50px;
   height: 50px;
   background-color: lightskyblue;
-  background-image: linear-gradient(to bottom,lightskyblue,#006aff);
+  background-image: linear-gradient(to bottom, lightskyblue, #006aff);
   border: 2px solid black;
   border-radius: 10px;
-  box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.2); 
+  box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.2);
+}
+
+.observer {
+  width: 300px;
+  height: 40px;
+  color: white;
+  background-color: gray;
+  border: 0px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+.observer:hover {
+  background-color: #333; /* ホバー時に少し暗くする */
 }
 
 .square:hover {
@@ -213,11 +227,18 @@
   gap: 6px;
 }
 
+.game-controls {
+  display: flex;
+  flex-direction: column; /* 縦に並べる */
+  align-items: center; /* 中央に寄せる */
+  gap: 40px; /* ボードとボタンの間の隙間 */
+  margin-top: 30px; /* 3D画面との間の余白 */
+}
 
 .canvasContainer {
   width: 80vw;
   height: 80vh;
   background-color: #f0f0f0;
-  margin: 0;
+  margin: 10;
   padding: 0;
 }
