@@ -8,120 +8,6 @@ import React, { useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 
-function Square({ onSquareClick }) {
-  return <button className="square" onClick={onSquareClick}></button>;
-}
-
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(90);
-  const [squares, setSquares] = useState(
-    Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
-  );
-
-  function handleClick(i, j) {
-    const nextSquares = squares.map((row) => {
-      return row.map((cell) => {
-        return [...cell];
-      });
-    });
-
-    if (squares[i][j][4] || calculateWinner(squares)) {
-      return;
-    }
-
-    if (xIsNext === 90) {
-      nextSquares[i][j].push(xIsNext);
-      setSquares(nextSquares);
-      setXIsNext(10);
-    } else if (xIsNext === 10) {
-      nextSquares[i][j].push(xIsNext);
-      setSquares(nextSquares);
-      setXIsNext(70);
-    } else if (xIsNext === 70) {
-      nextSquares[i][j].push(xIsNext);
-      setSquares(nextSquares);
-      setXIsNext(30);
-    } else if (xIsNext === 30) {
-      nextSquares[i][j].push(xIsNext);
-      setSquares(nextSquares);
-      setXIsNext(90);
-    }
-  }
-
-  const winner = calculateWinner(squares);
-  const [nextPlayer, setNextplayer] = useState();
-  if (xIsNext === 90 || xIsNext === 70) {
-    setNextplayer('X');
-  } else {
-    setNextplayer('O');
-  }
-
-  let status;
-  if (winner) {
-    status = 'Winner' + winner;
-  } else {
-    status = 'Next player: ' + nextPlayer;
-  }
-
-  return (
-    <>
-      <div className="status">{status}</div>
-
-      <div className="canvasContainer">
-        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
-          <axesHelper args={[5]} />
-          <ambientLight intensity={1} />
-          <directionalLight color="white" position={[0, 5, 0]} />
-
-          <BaseBox />
-          <Cylinders />
-          <ReflectSquares squares={squares} />
-
-          <OrbitControls />
-        </Canvas>
-      </div>
-
-      <div className="board">
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(0, 0)} />
-          <Square onSquareClick={() => handleClick(0, 1)} />
-          <Square onSquareClick={() => handleClick(0, 2)} />
-          <Square onSquareClick={() => handleClick(0, 3)} />
-          <Square onSquareClick={() => handleClick(0, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(1, 0)} />
-          <Square onSquareClick={() => handleClick(1, 1)} />
-          <Square onSquareClick={() => handleClick(1, 2)} />
-          <Square onSquareClick={() => handleClick(1, 3)} />
-          <Square onSquareClick={() => handleClick(1, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(2, 0)} />
-          <Square onSquareClick={() => handleClick(2, 1)} />
-          <Square onSquareClick={() => handleClick(2, 2)} />
-          <Square onSquareClick={() => handleClick(2, 3)} />
-          <Square onSquareClick={() => handleClick(2, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(3, 0)} />
-          <Square onSquareClick={() => handleClick(3, 1)} />
-          <Square onSquareClick={() => handleClick(3, 2)} />
-          <Square onSquareClick={() => handleClick(3, 3)} />
-          <Square onSquareClick={() => handleClick(3, 4)} />
-        </div>
-        <div className="board-row">
-          <Square onSquareClick={() => handleClick(4, 0)} />
-          <Square onSquareClick={() => handleClick(4, 1)} />
-          <Square onSquareClick={() => handleClick(4, 2)} />
-          <Square onSquareClick={() => handleClick(4, 3)} />
-          <Square onSquareClick={() => handleClick(4, 4)} />
-        </div>
-      </div>
-    </>
-  );
-}
-
 //勝利パターンの数え上げ
 const index = [];
 for (let z = 0; z < 5; z++) {
@@ -241,22 +127,152 @@ index.push([
   [0, 4, 4],
 ]);
 
-function calculateWinner(squares) {
-  for (let i = 0; i < index.length; i++) {
-    const [c1, c2, c3, c4, c5] = index[i];
-    const [v1, v2, v3, v4, v5] = [
-      squares[c1[0]][c1[1]][c1[2]],
-      squares[c2[0]][c2[1]][c2[2]],
-      squares[c3[0]][c3[1]][c3[2]],
-      squares[c4[0]][c4[1]][c4[2]],
-      squares[c5[0]][c5[1]][c5[2]],
-    ];
+function Square({ onSquareClick }) {
+  //XOボタンの定義
+  return <button className="square" onClick={onSquareClick}></button>;
+}
 
-    if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
-      return v1;
+export default function Board() {
+  const [xIsNext, setXIsNext] = useState(90);
+  const [squares, setSquares] = useState(
+    Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
+  ); //三重配列の生成
+
+  function handleClick(i, j) {
+    const nextSquares = squares.map((row) => {
+      return row.map((cell) => {
+        return [...cell];
+      });
+    }); //三重配列のコピー
+
+    if (squares[i][j][4] || winner) {
+      return;
+    } //おくことのできる上限に達しているか勝者が決まっていたら何もできないようにする
+
+    if (xIsNext === 90) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(10);
+    } else if (xIsNext === 10) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(70);
+    } else if (xIsNext === 70) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(30);
+    } else if (xIsNext === 30) {
+      nextSquares[i][j].push(xIsNext);
+      setSquares(nextSquares);
+      setXIsNext(90);
+    }
+  } //xIsNextを順繰りになるように定義
+
+  const [winner, setWinner] = useState();
+  function handleObserve(probability) {
+    const [randomNum, setRandomNum] = useState(0);
+    setRandomNum(Math.random());
+    if (probability / 10 > randomNum) {
+      return 'X';
+    } else {
+      return 'O';
     }
   }
-  return null;
+  function calculateWinner(squares) {
+    for (let i = 0; i < index.length; i++) {
+      const [c1, c2, c3, c4, c5] = index[i];
+      const [p1, p2, p3, p4, p5] = [
+        squares[c1[0]][c1[1]][c1[2]],
+        squares[c2[0]][c2[1]][c2[2]],
+        squares[c3[0]][c3[1]][c3[2]],
+        squares[c4[0]][c4[1]][c4[2]],
+        squares[c5[0]][c5[1]][c5[2]],
+      ];
+      const [v1, v2, v3, v4, v5] = [
+        handleObserve(p1),
+        handleObserve(p2),
+        handleObserve(p3),
+        handleObserve(p4),
+        handleObserve(p5),
+      ];
+
+      if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
+        setWinner(v1);
+      }
+    }
+  }
+
+  const [nextPlayer, setNextplayer] = useState();
+  if (xIsNext === 90 || xIsNext === 70) {
+    setNextplayer('X');
+  } else {
+    setNextplayer('O');
+  }
+
+  let [status, setStatus] = useState();
+  if (winner) {
+    setStatus('Winner' + winner);
+  } else {
+    setStatus('Next player: ' + nextPlayer);
+  }
+
+  return (
+    <>
+      <div className="status">{status}</div>
+
+      <div className="canvasContainer">
+        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
+          <axesHelper args={[5]} />
+          <ambientLight intensity={1} />
+          <directionalLight color="white" position={[0, 5, 0]} />
+
+          <BaseBox />
+          <Cylinders />
+          <ReflectSquares squares={squares} />
+
+          <OrbitControls />
+        </Canvas>
+      </div>
+
+      <div className="board">
+        <div className="board-row">
+          <Square onSquareClick={() => handleClick(0, 0)} />
+          <Square onSquareClick={() => handleClick(0, 1)} />
+          <Square onSquareClick={() => handleClick(0, 2)} />
+          <Square onSquareClick={() => handleClick(0, 3)} />
+          <Square onSquareClick={() => handleClick(0, 4)} />
+        </div>
+        <div className="board-row">
+          <Square onSquareClick={() => handleClick(1, 0)} />
+          <Square onSquareClick={() => handleClick(1, 1)} />
+          <Square onSquareClick={() => handleClick(1, 2)} />
+          <Square onSquareClick={() => handleClick(1, 3)} />
+          <Square onSquareClick={() => handleClick(1, 4)} />
+        </div>
+        <div className="board-row">
+          <Square onSquareClick={() => handleClick(2, 0)} />
+          <Square onSquareClick={() => handleClick(2, 1)} />
+          <Square onSquareClick={() => handleClick(2, 2)} />
+          <Square onSquareClick={() => handleClick(2, 3)} />
+          <Square onSquareClick={() => handleClick(2, 4)} />
+        </div>
+        <div className="board-row">
+          <Square onSquareClick={() => handleClick(3, 0)} />
+          <Square onSquareClick={() => handleClick(3, 1)} />
+          <Square onSquareClick={() => handleClick(3, 2)} />
+          <Square onSquareClick={() => handleClick(3, 3)} />
+          <Square onSquareClick={() => handleClick(3, 4)} />
+        </div>
+        <div className="board-row">
+          <Square onSquareClick={() => handleClick(4, 0)} />
+          <Square onSquareClick={() => handleClick(4, 1)} />
+          <Square onSquareClick={() => handleClick(4, 2)} />
+          <Square onSquareClick={() => handleClick(4, 3)} />
+          <Square onSquareClick={() => handleClick(4, 4)} />
+        </div>
+      </div>
+    </>
+  );
 }
 
 // ボードを定義
