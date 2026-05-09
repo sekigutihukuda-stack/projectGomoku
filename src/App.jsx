@@ -124,21 +124,28 @@ index.push([
   [0, 4, 4],
 ]);
 
-function Square({ onSquareClick }) {
+function Square({ onSquareClick, setColor }) {
   //XOボタンの定義
-  return <button className="square" onClick={onSquareClick}></button>;
+  return (
+    <button
+      style={{ backgroundImage: setColor }}
+      className="square"
+      onClick={onSquareClick}
+    ></button>
+  );
 }
 
-function Observer({ onObserverClick }) {
+function Observer({ onObserverClick, value }) {
   //観測ボタンの定義
   return (
     <button className="observer" onClick={onObserverClick}>
-      Observe!
+      {value}
     </button>
   );
 }
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
+  const [hasPlacedStone, setHasPlacedStone] = useState(false);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
@@ -157,9 +164,11 @@ export default function Board() {
       });
     }); //三重配列のコピー
 
-    if (squares[i][j][4] || winner) {
+    if (squares[i][j][4] || winner || hasPlacedStone) {
       return;
     } //おくことのできる上限に達しているか勝者が決まっていたら何もできないようにする
+
+    setHasPlacedStone(true);
 
     if (xProbability === 90) {
       nextSquares[i][j].push(xProbability);
@@ -229,6 +238,7 @@ export default function Board() {
       } else {
         setXObserveLimit(xObserveLimit - 1);
       } //観測回数を１減らす
+      setHasPlacedStone(false);
     }
   }
 
@@ -240,12 +250,12 @@ export default function Board() {
   if (winner) {
     status = 'Winner' + winner;
   } else {
-    status = 'Next player: ' + nextPlayer;
+    status = 'Next player: ' + (nextPlayer === 'X' ? 'Black' : 'White');
   }
   const observationLeft =
-    'Observation left | PlayerX:' +
+    'Observation left | Player Black:' +
     xObserveLimit +
-    ' | PlayerO:' +
+    ' | Player White:' +
     oObserveLimit;
 
   //ステージ遷移
@@ -325,63 +335,152 @@ export default function Board() {
     );
   }
   return (
-    <>
-      <div className="status">{status}</div>
-      <div className="observationleft">{observationLeft}</div>
-      <div className="canvasContainer">
-        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
-          <axesHelper args={[5]} />
-          <ambientLight intensity={1} />
-          <directionalLight color="white" position={[0, 5, 0]} />
+    <div className="main-container">
+      <div className="display-3d">
+        <div className="status">{status}</div>
+        <div className="observationleft">{observationLeft}</div>
+        <div className="canvasContainer">
+          <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
+            <axesHelper args={[5]} />
+            <ambientLight intensity={1} />
+            <directionalLight color="white" position={[0, 5, 0]} />
 
-          <BaseBox />
-          <Cylinders />
-          <ReflectSquares squares={squares} />
+            <BaseBox />
+            <Cylinders />
+            <ReflectSquares squares={squares} />
 
-          <OrbitControls />
-        </Canvas>
+            <OrbitControls />
+          </Canvas>
+        </div>
       </div>
-      <div className="game-controals">
+      <div className="game-controls">
         <div className="board">
           <div className="board-row">
-            <Square onSquareClick={() => handleClick(0, 0)} />
-            <Square onSquareClick={() => handleClick(0, 1)} />
-            <Square onSquareClick={() => handleClick(0, 2)} />
-            <Square onSquareClick={() => handleClick(0, 3)} />
-            <Square onSquareClick={() => handleClick(0, 4)} />
+            <Square
+              onSquareClick={() => handleClick(0, 0)}
+              setColor="linear-gradient(to bottom, rgb(247, 133, 133), rgb(247, 19, 19))"
+            />
+            <Square
+              onSquareClick={() => handleClick(0, 1)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(0, 2)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(0, 3)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(0, 4)}
+              setColor="linear-gradient(to bottom, rgb(144, 247, 133), green)"
+            />
           </div>
           <div className="board-row">
-            <Square onSquareClick={() => handleClick(1, 0)} />
-            <Square onSquareClick={() => handleClick(1, 1)} />
-            <Square onSquareClick={() => handleClick(1, 2)} />
-            <Square onSquareClick={() => handleClick(1, 3)} />
-            <Square onSquareClick={() => handleClick(1, 4)} />
+            <Square
+              onSquareClick={() => handleClick(1, 0)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(1, 1)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(1, 2)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(1, 3)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(1, 4)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
           </div>
           <div className="board-row">
-            <Square onSquareClick={() => handleClick(2, 0)} />
-            <Square onSquareClick={() => handleClick(2, 1)} />
-            <Square onSquareClick={() => handleClick(2, 2)} />
-            <Square onSquareClick={() => handleClick(2, 3)} />
-            <Square onSquareClick={() => handleClick(2, 4)} />
+            <Square
+              onSquareClick={() => handleClick(2, 0)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(2, 1)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(2, 2)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(2, 3)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(2, 4)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
           </div>
           <div className="board-row">
-            <Square onSquareClick={() => handleClick(3, 0)} />
-            <Square onSquareClick={() => handleClick(3, 1)} />
-            <Square onSquareClick={() => handleClick(3, 2)} />
-            <Square onSquareClick={() => handleClick(3, 3)} />
-            <Square onSquareClick={() => handleClick(3, 4)} />
+            <Square
+              onSquareClick={() => handleClick(3, 0)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(3, 1)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(3, 2)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(3, 3)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(3, 4)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
           </div>
           <div className="board-row">
-            <Square onSquareClick={() => handleClick(4, 0)} />
-            <Square onSquareClick={() => handleClick(4, 1)} />
-            <Square onSquareClick={() => handleClick(4, 2)} />
-            <Square onSquareClick={() => handleClick(4, 3)} />
-            <Square onSquareClick={() => handleClick(4, 4)} />
+            <Square
+              onSquareClick={() => handleClick(4, 0)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(4, 1)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(4, 2)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(4, 3)}
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
+            />
+            <Square
+              onSquareClick={() => handleClick(4, 4)}
+              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+            />
           </div>
         </div>
-        <Observer onObserverClick={() => calculateWinner(squares)} />
+        {hasPlacedStone && (
+          <div className="observers">
+            <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
+            <Observer
+              value="Yes"
+              onObserverClick={() => calculateWinner(squares)}
+            />
+            <Observer
+              value="No"
+              onObserverClick={() => setHasPlacedStone(false)}
+            />
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -407,12 +506,26 @@ const Cylinders = () => {
       positions.push([x, 0, z]);
     }
   }
+
+  // 座標から色を判定する関数
+  const getCylinderColor = (x, z) => {
+    if (x === -2 && z === -2) return 'red'; // 左手前
+    if (x === 2 && z === -2) return 'yellowgreen'; // 右手前
+    if (x === 2 && z === 2) return 'lightskyblue'; // 右奥
+    return 'burlywood'; // それ以外（デフォルト）
+  };
+
   return (
     <group>
       {positions.map((pos, i) => (
         <mesh key={i} position={pos}>
           <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
-          <meshStandardMaterial color="burlywood" />
+          {/* 判定関数の結果をcolorに渡す */}
+          <meshStandardMaterial
+            color={getCylinderColor(pos[0], pos[2])}
+            transparent={true}
+            opacity={0.5}
+          />
         </mesh>
       ))}
     </group>
@@ -421,11 +534,26 @@ const Cylinders = () => {
 
 // 石を定義
 const Stone = ({ stonePosition, stoneType }) => {
-  const color = stoneType === 'X' ? 'black' : 'white';
+  let color;
+
+  if (stoneType === 90) {
+    color = '#4d4d4d';
+  } else if (stoneType === 70) {
+    color = '#808080';
+  } else if (stoneType === 30) {
+    color = '#b3b3b3';
+  } else if (stoneType === 10) {
+    color = '#e6e6e6';
+  }
+
   return (
     <mesh position={stonePosition}>
       <sphereGeometry args={[0.5, 32, 32]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.3} // 少しツヤを出すと質感が良くなります
+        metalness={0.2}
+      />
     </mesh>
   );
 };
