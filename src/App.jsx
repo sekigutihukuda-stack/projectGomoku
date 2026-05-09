@@ -183,7 +183,7 @@ export default function Board() {
   const [winner, setWinner] = useState();
   function handleObserve(probability) {
     const randomNum = Math.random();
-    if (probability / 100 > 0) {
+    if (probability / 100 > randomNum) {
       return 'X';
     } else {
       return 'O';
