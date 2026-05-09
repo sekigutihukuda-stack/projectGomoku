@@ -4,7 +4,7 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './App.css';
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 
@@ -21,6 +21,23 @@ export default function Board() {
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   );
+
+  const [stage, setStage] = useState('start'); // 'start', 'game', 'result', 'ruleExplanation'のいずれかを取る
+
+  function resetGame() {
+    setSquares(Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])));
+    setXIsNext(true);
+    setStage('start');
+  }
+
+  useEffect(() => {
+    if (stage === 'game') {
+      const winner = calculateWinner(squares);
+      if (winner) {
+        setStage('result');
+      }
+    }
+  }, [squares, stage]);
 
   function handleClick(i, j) {
     const nextSquares = squares.map((row) => {
@@ -45,15 +62,81 @@ export default function Board() {
   const winner = calculateWinner(squares);
   let status;
   if (winner) {
-    status = 'Winner' + winner;
+    status = 'Winner: ' + winner;
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
-  return (
-    <>
-      <div className="status">{status}</div>
+  //ステージ遷移
+  if (stage === 'start') {
+    return (
+      <>
+      <div className="startScreen">
+        <h1>3D量子五目並べ</h1>
+        <div className = "buttonsInStartScreen">
+          <button className = "startButton" onClick={() => setStage('game')}>スタート</button>
+          <button className="ruleExplanationButton" onClick={() => setStage('ruleExplanation1')}>ルール説明</button>
+        </div>
+      </div>
+      </>
+    );
+  }
 
+  if (stage === 'ruleExplanation1') {
+    return (
+      <>
+      <div className="ruleExplanationScreen">
+        <h2>ルール説明</h2>
+        <p>3D量子五目並べは、5x5x5の立方体の中で行う五目並べです。</p>
+        <p>プレイヤーは交互に石を積んでいき、縦、横、高さ、斜めのいずれかで自分の石を5つ並べたプレイヤーが勝利となります。</p>
+        <div className = "buttonsInRuleExplanationScreen">
+          <button className="backButton" onClick={() => setStage('start')}>戻る</button>
+          <button className="nextButton" onClick={() => setStage('ruleExplanation2')}>次へ</button>
+        </div>
+      </div>
+      </>
+    );
+  }
+
+   if (stage === 'ruleExplanation2') {
+    return (
+      <>
+      <div className="ruleExplanationScreen">
+        <h2>ルール説明</h2>
+        <p>ただし、盤面に置く石の色はまだ確定していません！</p>
+        <p>プレーヤーの置く石にはそれぞれ90,70,30,10の数字が書かれています。</p>
+        <p>これらの数字はその石が黒石になる確率を表しています。(10→90%の確率で白石になる、30→70%の確率で白石になる)</p>
+        <p>"観測"することで確率に従って石の色が決定します。</p>
+        <div className = "buttonsInRuleExplanationScreen">
+          <button className="backButton" onClick={() => setStage('ruleExplanation1')}>戻る</button>
+          <button className="nextButton" onClick={() => setStage('ruleExplanation3')}>次へ</button>
+        </div>
+      </div>
+      </>
+    );
+  }
+
+     if (stage === 'ruleExplanation3') {
+    return (
+      <>
+      <div className="ruleExplanationScreen">
+        <h2>ルール説明</h2>
+        <p>先手から90→10→30→70→90→...の順に石を置いていきます。</p>
+        <p>確率の高い石をどこに置くか、どのタイミングで観測するかが勝敗の鍵となります！</p>
+        <p>頭を使いつつ、運を味方につけて勝利を目指しましょう！</p>
+        <div className = "buttonsInRuleExplanationScreen">
+          <button className="backButton" onClick={() => setStage('ruleExplanation2')}>戻る</button>
+          <button className="nextButton" onClick={() => setStage('start')}>メニューへ</button>
+        </div>
+      </div>
+      </>
+    );
+  }
+
+  if (stage === 'game') {
+    return (
+      <>
+      <div className="status">{status}</div>
 
       <div className="canvasContainer">
         <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
@@ -68,7 +151,6 @@ export default function Board() {
           <OrbitControls />
         </Canvas>
       </div>
-
 
       <div className="board">
         <div className="board-row">
@@ -124,7 +206,19 @@ export default function Board() {
         </div>
       </div>
     </>
-  );
+    );
+  }
+
+  if (stage === 'result') {
+    return (
+      <>
+        <div className="resultScreen">
+          <h1>{status}</h1>
+          <button className="menuButton" onClick={() => resetGame()}>メニューへ</button>
+        </div>
+      </>
+    );
+  }
 }
 
 //勝利パターンの数え上げ
