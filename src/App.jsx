@@ -279,15 +279,15 @@ export default function Board() {
             />
             <Square
               onSquareClick={() => handleClick(0, 1)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(0, 2)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(0, 3)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(0, 4)}
@@ -297,89 +297,89 @@ export default function Board() {
           <div className="board-row">
             <Square
               onSquareClick={() => handleClick(1, 0)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(1, 1)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(1, 2)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(1, 3)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(1, 4)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
           </div>
           <div className="board-row">
             <Square
               onSquareClick={() => handleClick(2, 0)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(2, 1)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(2, 2)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(2, 3)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(2, 4)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
           </div>
           <div className="board-row">
             <Square
               onSquareClick={() => handleClick(3, 0)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(3, 1)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(3, 2)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(3, 3)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(3, 4)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
           </div>
           <div className="board-row">
             <Square
               onSquareClick={() => handleClick(4, 0)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(4, 1)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(4, 2)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(4, 3)}
-              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
+              setColor="linear-gradient(to bottom, rgb(219, 209, 196), burlywood)"
             />
             <Square
               onSquareClick={() => handleClick(4, 4)}
-              setColor="linear-gradient(to bottom, rgb(251, 255, 184), yellow)"
+              setColor="linear-gradient(to bottom, lightskyblue, rgb(15, 94, 252))"
             />
           </div>
         </div>
@@ -423,12 +423,22 @@ const Cylinders = () => {
       positions.push([x, 0, z]);
     }
   }
+
+  // 座標から色を判定する関数
+  const getCylinderColor = (x, z) => {
+    if (x === -2 && z === -2) return 'red'; // 左手前
+    if (x === 2 && z === -2) return 'yellowgreen'; // 右手前
+    if (x === 2 && z === 2) return 'lightskyblue'; // 右奥
+    return 'burlywood'; // それ以外（デフォルト）
+  };
+
   return (
     <group>
       {positions.map((pos, i) => (
         <mesh key={i} position={pos}>
           <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
-          <meshStandardMaterial color="burlywood" />
+          {/* 判定関数の結果をcolorに渡す */}
+          <meshStandardMaterial color={getCylinderColor(pos[0], pos[2])} />
         </mesh>
       ))}
     </group>
