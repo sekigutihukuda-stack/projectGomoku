@@ -146,6 +146,7 @@ function Observer({ onObserverClick, value }) {
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
   const [hasPlacedStone, setHasPlacedStone] = useState(false);
+  const [tempSquares, setTempSquares] = useState(null);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
@@ -210,6 +211,7 @@ export default function Board() {
           return [...cell];
         });
       }); //三重配列のコピー
+
       for (let i = 0; i < judgeSquares.length; i++) {
         for (let j = 0; j < judgeSquares[i].length; j++) {
           for (let k = 0; k < judgeSquares[i][j].length; k++) {
@@ -217,6 +219,9 @@ export default function Board() {
           }
         }
       } //確率が入った三重配列を実際の値に変換（観測する）
+
+      setTempSquares(squares); //tempSquaresにSquaresを退避させる
+
       for (let i = 0; i < index.length; i++) {
         const [c1, c2, c3, c4, c5] = index[i]; //一直線に並ぶ時の座標を取得する
         const [v1, v2, v3, v4, v5] = [
@@ -233,6 +238,7 @@ export default function Board() {
           setStage('result');
         }
       }
+      setSquares(judgeSquares); //3d画面にjudgeSquaresの内容を表示させる
 
       if (nextPlayer === 'X') {
         setOObserveLimit(oObserveLimit - 1);
@@ -508,26 +514,50 @@ export default function Board() {
             />
           </div>
         </div>
-        {/* 修正前：条件が厳しいので、回数がないとパネルごと消えて詰んでしまう */}
-        {hasPlacedStone && (
+        {tempSquares ? (
           <div className="observers">
-            <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
-
-            {/* 観測回数がある時だけ Yes ボタンを出す */}
-            {((nextPlayer === 'O' && xObserveLimit > 0) ||
-              (nextPlayer === 'X' && oObserveLimit > 0)) && (
-              <Observer
-                value="Yes"
-                onObserverClick={() => calculateWinner(squares)}
-              />
-            )}
-
-            {/* No（観測せず終了）は常に選べるようにする */}
+            <div style={{ fontSize: 20, color: 'blue' }}>
+              観測結果を確認中...
+            </div>
             <Observer
-              value="No"
-              onObserverClick={() => setHasPlacedStone(false)}
+              value="戻して次へ"
+              onObserverClick={() => {
+                // バックアップしておいた確率盤面に戻す
+                setSquares(tempSquares);
+                setTempSquares(null); // バックアップを空にする
+                setHasPlacedStone(false); // 次の石を置けるようにする
+
+                // 次のプレイヤー・確率へ進める
+                setXProbability((prev) => {
+                  if (prev === 90) return 10;
+                  if (prev === 10) return 70;
+                  if (prev === 70) return 30;
+                  return 90;
+                });
+              }}
             />
           </div>
+        ) : (
+          hasPlacedStone && (
+            <div className="observers">
+              <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
+
+              {/* 観測回数がある時だけ Yes ボタンを出す */}
+              {((nextPlayer === 'O' && xObserveLimit > 0) ||
+                (nextPlayer === 'X' && oObserveLimit > 0)) && (
+                <Observer
+                  value="Yes"
+                  onObserverClick={() => calculateWinner(squares)}
+                />
+              )}
+
+              {/* No（観測せず終了）は常に選べるようにする */}
+              <Observer
+                value="No"
+                onObserverClick={() => setHasPlacedStone(false)}
+              />
+            </div>
+          )
         )}
       </div>
     </div>
@@ -586,14 +616,18 @@ const Cylinders = () => {
 const Stone = ({ stonePosition, stoneType }) => {
   let color;
 
-  if (stoneType === 90) {
-    color = '#4d4d4d';
-  } else if (stoneType === 70) {
-    color = '#808080';
-  } else if (stoneType === 30) {
-    color = '#b3b3b3';
-  } else if (stoneType === 10) {
-    color = '#e6e6e6';
+  if (typeof stoneType === 'number') {
+    if (stoneType === 90) {
+      color = '#4d4d4d';
+    } else if (stoneType === 70) {
+      color = '#808080';
+    } else if (stoneType === 30) {
+      color = '#b3b3b3';
+    } else if (stoneType === 10) {
+      color = '#e6e6e6';
+    }
+  } else {
+    color = stoneType === 'X' ? 'black' : 'white';
   }
 
   return (
