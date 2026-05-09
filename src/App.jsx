@@ -134,7 +134,11 @@ function Square({ onSquareClick }) {
 
 function Observer({ onObserverClick }) {
   //観測ボタンの定義
-  return <button className="observer" onClick={onObserverClick}></button>;
+  return (
+    <button className="observer" onClick={onObserverClick}>
+      観測する
+    </button>
+  );
 }
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
