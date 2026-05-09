@@ -129,16 +129,17 @@ function Square({ onSquareClick }) {
   return <button className="square" onClick={onSquareClick}></button>;
 }
 
-function Observer({ onObserverClick }) {
+function Observer({ onObserverClick, value }) {
   //観測ボタンの定義
   return (
     <button className="observer" onClick={onObserverClick}>
-      Observe!
+      {value}
     </button>
   );
 }
 export default function Board() {
   const [xProbability, setXProbability] = useState(90);
+  const [hasPlacedStone, setHasPlacedStone] = useState(false);
   const [squares, setSquares] = useState(
     Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
   ); //三重配列の生成
@@ -150,9 +151,11 @@ export default function Board() {
       });
     }); //三重配列のコピー
 
-    if (squares[i][j][4] || winner) {
+    if (squares[i][j][4] || winner || hasPlacedStone) {
       return;
     } //おくことのできる上限に達しているか勝者が決まっていたら何もできないようにする
+
+    setHasPlacedStone(true);
 
     if (xProbability === 90) {
       nextSquares[i][j].push(xProbability);
@@ -222,6 +225,7 @@ export default function Board() {
       } else {
         setXObserveLimit(xObserveLimit - 1);
       } //観測回数を１減らす
+      setHasPlacedStone(false);
     }
   }
 
@@ -242,23 +246,25 @@ export default function Board() {
     oObserveLimit;
 
   return (
-    <>
-      <div className="status">{status}</div>
-      <div className="observationleft">{observationLeft}</div>
-      <div className="canvasContainer">
-        <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
-          <axesHelper args={[5]} />
-          <ambientLight intensity={1} />
-          <directionalLight color="white" position={[0, 5, 0]} />
+    <div className="main-container">
+      <div className="display-3d">
+        <div className="status">{status}</div>
+        <div className="observationleft">{observationLeft}</div>
+        <div className="canvasContainer">
+          <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
+            <axesHelper args={[5]} />
+            <ambientLight intensity={1} />
+            <directionalLight color="white" position={[0, 5, 0]} />
 
-          <BaseBox />
-          <Cylinders />
-          <ReflectSquares squares={squares} />
+            <BaseBox />
+            <Cylinders />
+            <ReflectSquares squares={squares} />
 
-          <OrbitControls />
-        </Canvas>
+            <OrbitControls />
+          </Canvas>
+        </div>
       </div>
-      <div className="game-controals">
+      <div className="game-controls">
         <div className="board">
           <div className="board-row">
             <Square onSquareClick={() => handleClick(0, 0)} />
@@ -296,9 +302,21 @@ export default function Board() {
             <Square onSquareClick={() => handleClick(4, 4)} />
           </div>
         </div>
-        <Observer onObserverClick={() => calculateWinner(squares)} />
+        {hasPlacedStone && (
+          <div className="observers">
+            <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
+            <Observer
+              value="Yes"
+              onObserverClick={() => calculateWinner(squares)}
+            />
+            <Observer
+              value="No"
+              onObserverClick={() => setHasPlacedStone(false)}
+            />
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 

@@ -194,17 +194,17 @@
 }
 
 .observer {
-  width: 300px;
+  width: 150px;
   height: 40px;
   color: white;
-  background-color: gray;
-  border: 0px;
+  background-color: rgb(67, 170, 49);
+  border: 1px solid black;
   font-size: 16px;
   border-radius: 10px;
 }
 
 .observer:hover {
-  background-color: #333; /* ホバー時に少し暗くする */
+  background-color: rgb(50, 127, 36); /* ホバー時に少し暗くする */
 }
 
 .square:hover {
@@ -227,18 +227,53 @@
   gap: 6px;
 }
 
-.game-controls {
+/* ✅ 画面全体のスクロールを禁止し、100%内に収める */
+.main-container {
   display: flex;
-  flex-direction: column; /* 縦に並べる */
-  align-items: center; /* 中央に寄せる */
-  gap: 40px; /* ボードとボタンの間の隙間 */
-  margin-top: 30px; /* 3D画面との間の余白 */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* 画面外へのハミ出しを隠す（スクロールバーを消す） */
+  margin: 0;
+  padding: 0;
 }
 
+/* ✅ 左側 2/3 */
+.display-3d {
+  flex: 2;
+  height: 100vh;
+  min-width: 0; /* Flex子要素が中身に押されて広がるのを防ぐ魔法のプロパティ */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ✅ 3Dキャンバス：親のサイズに従う */
 .canvasContainer {
-  width: 80vw;
-  height: 80vh;
-  background-color: #f0f0f0;
-  margin: 10;
-  padding: 0;
+  flex: 1; /* 余白をすべて使う */
+  width: 100%;
+  height: 100%; /* 明示的に高さを指定 */
+  margin: 0;
+}
+
+/* ✅ 右側 1/3 */
+.game-controls {
+  flex: 1;
+  height: 100vh;
+  min-width: 300px; /* ボタンが潰れすぎないよう、最低限の幅だけ確保 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: rgb(201, 200, 200);
+  border-left: 1px solid #ccc;
+  box-sizing: border-box; /* paddingを含めたサイズ計算にする */
+}
+
+/* ✅ ボード内のボタンが大きすぎる場合の調整 */
+.square {
+  width: 8vw; /* 画面幅に合わせた可変サイズにする（最大50px） */
+  height: 8vw;
+  max-width: 50px;
+  max-height: 50px;
 }
