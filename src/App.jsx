@@ -183,47 +183,68 @@ export default function Board() {
     }
   }
   function calculateWinner(squares) {
-    const judgeSquares = squares.map((row) => {
-      return row.map((cell) => {
-        return [...cell];
-      });
-    }); //三重配列のコピー
-    for (let i = 0; i < judgeSquares.length; i++) {
-      for (let j = 0; j < judgeSquares[i].length; j++) {
-        for (let k = 0; k < judgeSquares[i][j].length; k++) {
-          judgeSquares[i][j][k] = handleObserve(judgeSquares[i][j][k]);
+    if (
+      //観測回数が残っている時にしか観測できないようにする
+      (nextPlayer === 'X' && xObserveLimit > 0) ||
+      (nextPlayer === 'O' && oObserveLimit > 0)
+    ) {
+      const judgeSquares = squares.map((row) => {
+        return row.map((cell) => {
+          return [...cell];
+        });
+      }); //三重配列のコピー
+      for (let i = 0; i < judgeSquares.length; i++) {
+        for (let j = 0; j < judgeSquares[i].length; j++) {
+          for (let k = 0; k < judgeSquares[i][j].length; k++) {
+            judgeSquares[i][j][k] = handleObserve(judgeSquares[i][j][k]);
+          }
+        }
+      } //確率が入った三重配列を実際の値に変換（観測する）
+
+      for (let i = 0; i < index.length; i++) {
+        const [c1, c2, c3, c4, c5] = index[i]; //一直線に並ぶ時の座標を取得する
+        const [v1, v2, v3, v4, v5] = [
+          //各座標にxがあるかどうかを取得する
+          judgeSquares[c1[0]][c1[1]][c1[2]],
+          judgeSquares[c2[0]][c2[1]][c2[2]],
+          judgeSquares[c3[0]][c3[1]][c3[2]],
+          judgeSquares[c4[0]][c4[1]][c4[2]],
+          judgeSquares[c5[0]][c5[1]][c5[2]],
+        ];
+
+        if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
+          setWinner(v1);
         }
       }
-    } //確率が入った三重配列を実際の値に変換（観測する）
 
-    for (let i = 0; i < index.length; i++) {
-      const [c1, c2, c3, c4, c5] = index[i];
-      const [v1, v2, v3, v4, v5] = [
-        judgeSquares[c1[0]][c1[1]][c1[2]],
-        judgeSquares[c2[0]][c2[1]][c2[2]],
-        judgeSquares[c3[0]][c3[1]][c3[2]],
-        judgeSquares[c4[0]][c4[1]][c4[2]],
-        judgeSquares[c5[0]][c5[1]][c5[2]],
-      ];
-
-      if (v1 && v1 === v2 && v2 === v3 && v3 === v4 && v4 === v5) {
-        setWinner(v1);
-      }
+      if (nextPlayer === 'X') {
+        setOObserveLimit(oObserveLimit - 1);
+      } else {
+        setXObserveLimit(xObserveLimit - 1);
+      } //観測回数を１減らす
     }
   }
+
+  let [xObserveLimit, setXObserveLimit] = useState(3);
+  let [oObserveLimit, setOObserveLimit] = useState(3); //観測回数を制限
+  const nextPlayer = xProbability === 90 || xProbability === 70 ? 'X' : 'O';
 
   let status;
   if (winner) {
     status = 'Winner' + winner;
   } else {
-    status =
-      'Next player: ' +
-      (xProbability === 90 || xProbability === 70 ? 'X' : 'O');
+    status = 'Next player: ' + nextPlayer;
   }
+  const observationLeft =
+    'Observation left/Player X: ' +
+    xObserveLimit +
+    'Player O: ' +
+    oObserveLimit;
 
   return (
     <>
       <div className="status">{status}</div>
+      <div className="observationleft">{observationLeft}</div>
       <div className="canvasContainer">
         <Canvas camera={{ position: [10, 10, 10], fov: 70 }}>
           <axesHelper args={[5]} />
