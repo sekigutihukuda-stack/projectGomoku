@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
-import { useRef } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { useRef } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 
 //勝利パターンの数え上げ
 const index = [];
@@ -156,6 +156,12 @@ export default function Board() {
     setSquares(
       Array.from({ length: 5 }, () => Array.from({ length: 5 }, () => [])),
     );
+    setTempSquares(null);
+    setWinner(undefined);
+    setHasPlacedStone(false);
+    setXProbability(90);
+    setXObserveLimit(3);
+    setOObserveLimit(3);
     setStage('start');
   }
 
@@ -172,23 +178,22 @@ export default function Board() {
 
     setHasPlacedStone(true);
 
+    nextSquares[i][j].push(xProbability);
+    setSquares(nextSquares);
+
     if (xProbability === 90) {
-      nextSquares[i][j].push(xProbability);
-      setSquares(nextSquares);
       setXProbability(10);
     } else if (xProbability === 10) {
-      nextSquares[i][j].push(xProbability);
-      setSquares(nextSquares);
       setXProbability(70);
     } else if (xProbability === 70) {
-      nextSquares[i][j].push(xProbability);
-      setSquares(nextSquares);
       setXProbability(30);
     } else if (xProbability === 30) {
-      nextSquares[i][j].push(xProbability);
-      setSquares(nextSquares);
       setXProbability(90);
     } //xIsNextを順繰りになるように定義
+
+    if (xObserveLimit === 0 && oObserveLimit === 0) {
+      calculateWinner(nextSquares);
+    }
   }
 
   const [winner, setWinner] = useState();
@@ -201,11 +206,13 @@ export default function Board() {
     }
   }
   function calculateWinner(squares) {
-    if (
-      //観測回数が残っている時にしか観測できないようにする
+    const isSuddenDeath = xObserveLimit === 0 && oObserveLimit === 0;
+    const canObserve =
+      isSuddenDeath ||
       (nextPlayer === 'O' && xObserveLimit > 0) ||
-      (nextPlayer === 'X' && oObserveLimit > 0)
-    ) {
+      (nextPlayer === 'X' && oObserveLimit > 0);
+
+    if (canObserve) {
       const judgeSquares = squares.map((row) => {
         return row.map((cell) => {
           return [...cell];
@@ -240,11 +247,13 @@ export default function Board() {
       }
       setSquares(judgeSquares); //3d画面にjudgeSquaresの内容を表示させる
 
-      if (nextPlayer === 'X') {
-        setOObserveLimit(oObserveLimit - 1);
-      } else {
-        setXObserveLimit(xObserveLimit - 1);
-      } //観測回数を１減らす
+      if (!isSuddenDeath) {
+        if (nextPlayer === 'X') {
+          setOObserveLimit(oObserveLimit - 1);
+        } else {
+          setXObserveLimit(xObserveLimit - 1);
+        } //観測回数を１減らす
+      }
       setHasPlacedStone(false);
     }
   }
@@ -252,6 +261,7 @@ export default function Board() {
   let [xObserveLimit, setXObserveLimit] = useState(3);
   let [oObserveLimit, setOObserveLimit] = useState(3); //観測回数を制限
   const nextPlayer = xProbability === 90 || xProbability === 70 ? 'X' : 'O';
+  const isSuddenDeath = xObserveLimit === 0 && oObserveLimit === 0;
 
   let status;
   if (winner) {
@@ -259,11 +269,12 @@ export default function Board() {
   } else {
     status = 'Next player: ' + (nextPlayer === 'X' ? 'Black' : 'White');
   }
-  const observationLeft =
-    'Observation left | Player Black:' +
-    xObserveLimit +
-    ' | Player White:' +
-    oObserveLimit;
+  const observationLeft = isSuddenDeath
+    ? 'Observation left | Player Black:sudden death | Player White:sudden death'
+    : 'Observation left | Player Black:' +
+      xObserveLimit +
+      ' | Player White:' +
+      oObserveLimit;
 
   //ステージ遷移
   if (stage === 'start') {
@@ -538,18 +549,19 @@ export default function Board() {
             />
           </div>
         ) : (
-          hasPlacedStone && (
+          hasPlacedStone &&
+          !isSuddenDeath && (
             <div className="observers">
               <div style={{ fontSize: 25, color: 'black' }}>Observe?</div>
 
               {/* 観測回数がある時だけ Yes ボタンを出す */}
               {((nextPlayer === 'O' && xObserveLimit > 0) ||
                 (nextPlayer === 'X' && oObserveLimit > 0)) && (
-                  <Observer
-                    value="Yes"
-                    onObserverClick={() => calculateWinner(squares)}
-                  />
-                )}
+                <Observer
+                  value="Yes"
+                  onObserverClick={() => calculateWinner(squares)}
+                />
+              )}
 
               {/* No（観測せず終了）は常に選べるようにする */}
               <Observer
@@ -618,9 +630,9 @@ const Stone = ({ stonePosition, stoneType }) => {
 
   if (typeof stoneType === 'number') {
     if (stoneType === 90) {
-      color = '#4d4d4d';
+      color = '#1a1a1a';
     } else if (stoneType === 70) {
-      color = '#808080';
+      color = '#666666';
     } else if (stoneType === 30) {
       color = '#b3b3b3';
     } else if (stoneType === 10) {
