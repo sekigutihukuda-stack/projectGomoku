@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
-import React, { useRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Grid, OrbitControls } from '@react-three/drei';
+import { useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 
 //勝利パターンの数え上げ
 const index = [];
@@ -545,11 +545,11 @@ export default function Board() {
               {/* 観測回数がある時だけ Yes ボタンを出す */}
               {((nextPlayer === 'O' && xObserveLimit > 0) ||
                 (nextPlayer === 'X' && oObserveLimit > 0)) && (
-                <Observer
-                  value="Yes"
-                  onObserverClick={() => calculateWinner(squares)}
-                />
-              )}
+                  <Observer
+                    value="Yes"
+                    onObserverClick={() => calculateWinner(squares)}
+                  />
+                )}
 
               {/* No（観測せず終了）は常に選べるようにする */}
               <Observer
