@@ -537,14 +537,6 @@ export default function Board() {
                 setSquares(tempSquares);
                 setTempSquares(null); // バックアップを空にする
                 setHasPlacedStone(false); // 次の石を置けるようにする
-
-                // 次のプレイヤー・確率へ進める
-                setXProbability((prev) => {
-                  if (prev === 90) return 10;
-                  if (prev === 10) return 70;
-                  if (prev === 70) return 30;
-                  return 90;
-                });
               }}
             />
           </div>
